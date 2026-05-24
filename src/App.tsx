@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // ============================================================================
 // TYPES
 // ============================================================================
-type Step = -1 | 0 | 1 | 2 | 3 | 4 | 5 | 6;
+type Step = -1 | 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7;
 
 const STEP_NAMES: Record<number, string> = {
   0: 'Inicio',
@@ -40,7 +40,7 @@ export default function App() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight' || e.key === ' ') {
-        setStep((s) => (Math.min(6, s + 1) as Step));
+        setStep((s) => (Math.min(7, s + 1) as Step));
         e.preventDefault();
       }
       if (e.key === 'ArrowLeft') {
@@ -49,7 +49,7 @@ export default function App() {
       if (e.key === 'r' || e.key === 'R') setStep(-1);
       if (e.key === 'Escape') setStep(-1);
       const num = parseInt(e.key, 10);
-      if (!isNaN(num) && num >= 0 && num <= 6) setStep(num as Step);
+      if (!isNaN(num) && num >= 0 && num <= 7) setStep(num as Step);
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
@@ -57,35 +57,51 @@ export default function App() {
 
   return (
     <div
-      ref={stageRef}
-      className="app-stage"
-      style={{ transform: `scale(${scale})` }}
+      className="app-wrapper"
+      style={{ width: 1920 * scale, height: 1080 * scale }}
     >
-      <AnimatePresence mode="wait">
-        {step === -1 ? (
-          <motion.div
-            key="intro"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
-            style={{ position: 'absolute', inset: 0 }}
-          >
-            <IntroScreen onStart={() => setStep(0)} />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="sim"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            style={{ position: 'absolute', inset: 0 }}
-          >
-            <SimulatorScreen step={step} onStep={setStep} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div
+        ref={stageRef}
+        className="app-stage"
+        style={{ transform: `scale(${scale})` }}
+      >
+        <AnimatePresence mode="wait">
+          {step === -1 ? (
+            <motion.div
+              key="intro"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              style={{ position: 'absolute', inset: 0 }}
+            >
+              <IntroScreen onStart={() => setStep(0)} />
+            </motion.div>
+          ) : step === 7 ? (
+            <motion.div
+              key="final"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.4 }}
+              style={{ position: 'absolute', inset: 0 }}
+            >
+              <FinalScreen onStep={setStep} />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="sim"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              style={{ position: 'absolute', inset: 0 }}
+            >
+              <SimulatorScreen step={step} onStep={setStep} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
@@ -195,6 +211,121 @@ function SimulatorScreen({ step, onStep }: { step: Step; onStep: (s: Step) => vo
 }
 
 // ============================================================================
+// FINAL SCREEN · Operación cerrada con desglose
+// ============================================================================
+function FinalScreen({ onStep }: { onStep: (s: Step) => void }) {
+  return (
+    <section className="simulator-screen">
+      <header className="app-header">
+        <div className="app-header__left">
+          <span className="app-header__logo">AIO</span>
+          <span className="app-header__divider" />
+          <span className="app-header__title">
+            <strong>El flujo</strong> · cómo se vende un inmueble online
+          </span>
+        </div>
+        <div className="app-header__right">
+          <button className="app-header__reset" onClick={() => onStep(-1)}>
+            Reset
+          </button>
+          <span className="app-header__step">
+            Operación <b>cerrada</b>
+          </span>
+        </div>
+      </header>
+
+      <main className="app-main app-main--final">
+        {/* Watermark RIC */}
+        <div className="final-watermark">
+          <span className="final-watermark__letter">R</span>
+          <span className="final-watermark__letter">C</span>
+        </div>
+
+        {/* Confetti background */}
+        <Confetti />
+
+        {/* Card */}
+        <motion.div
+          className="final-card"
+          initial={{ opacity: 0, y: 30, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
+        >
+          <div className="final-card__head">
+            <motion.span
+              className="final-card__trophy"
+              initial={{ scale: 0, rotate: -180 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ delay: 0.3, type: 'spring', stiffness: 180, damping: 14 }}
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M6 3 L18 3 L18 5 L21 5 C 21 9, 19 11, 16.5 11.6 C 16 13, 15 14, 13.5 14.5 L 13.5 17 L 16 17 L 16 19 L 8 19 L 8 17 L 10.5 17 L 10.5 14.5 C 9 14, 8 13, 7.5 11.6 C 5 11, 3 9, 3 5 L 6 5 Z M 5 7 C 5.3 8.5, 6 9.5, 7 10 L 7 7 Z M 19 7 L 17 7 L 17 10 C 18 9.5, 18.7 8.5, 19 7 Z M 7 20 L 17 20 L 17 21 L 7 21 Z" />
+              </svg>
+            </motion.span>
+            <div className="final-card__title">Operación cerrada</div>
+          </div>
+
+          <div className="final-card__hero">
+            <img src="/anuncio-inmueble.png" alt="" />
+          </div>
+          <div className="final-card__address">Madrid · Tu zona</div>
+
+          <div className="final-card__price">300.000 €</div>
+          <div className="final-card__price-label">Precio de venta</div>
+
+          <div className="final-card__divider" />
+
+          <div className="final-card__fees-label">Honorarios totales</div>
+          <motion.div
+            className="final-card__fees"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.5 }}
+          >
+            12.000 €
+          </motion.div>
+          <div className="final-card__split-hint">
+            (4%) — <b>50% Tú</b> / <b>50% Compañero RIC</b>
+          </div>
+
+          <div className="final-card__split">
+            <motion.div
+              className="final-share"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.9 }}
+            >
+              <div className="final-share__avatar">
+                <img src="/feed-yo-1.png" alt="Tú" />
+              </div>
+              <span className="final-share__name">Tú</span>
+              <span className="final-share__amount">6.000 €</span>
+              <span className="final-share__role">Madrid</span>
+            </motion.div>
+            <div className="final-split__op">+</div>
+            <motion.div
+              className="final-share"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.9 }}
+            >
+              <div className="final-share__avatar final-share__avatar--placeholder">
+                <span>JM</span>
+              </div>
+              <span className="final-share__name">Compañero RIC</span>
+              <span className="final-share__amount">6.000 €</span>
+              <span className="final-share__role">Barcelona</span>
+            </motion.div>
+          </div>
+        </motion.div>
+      </main>
+
+      <ButtonBar step={7} onStep={onStep} />
+    </section>
+  );
+}
+
+// ============================================================================
 // HEADER
 // ============================================================================
 function Header({ stepLabel, onReset }: { stepLabel: string; onReset?: () => void }) {
@@ -224,6 +355,8 @@ function Header({ stepLabel, onReset }: { stepLabel: string; onReset?: () => voi
 // BUTTON BAR
 // ============================================================================
 function ButtonBar({ step, onStep }: { step: Step; onStep: (s: Step) => void }) {
+  const showTrophy = step >= 6;
+
   return (
     <footer className="button-bar">
       {([0, 1, 2, 3, 4, 5, 6] as const).map((n) => {
@@ -238,6 +371,22 @@ function ButtonBar({ step, onStep }: { step: Step; onStep: (s: Step) => void }) 
           </button>
         );
       })}
+      {showTrophy && (
+        <motion.button
+          className={`button-step button-step--trophy ${step === 7 ? 'button-step--active' : 'button-step--next'}`}
+          onClick={() => onStep(7)}
+          initial={{ opacity: 0, scale: 0.7 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: 'spring', stiffness: 200, damping: 16 }}
+        >
+          <span className="button-step__num" style={{ background: 'rgba(251,191,36,0.2)' }}>
+            <svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11">
+              <path d="M6 3 L18 3 L18 5 L21 5 C 21 9, 19 11, 16.5 11.6 C 16 13, 15 14, 13.5 14.5 L 13.5 17 L 16 17 L 16 19 L 8 19 L 8 17 L 10.5 17 L 10.5 14.5 C 9 14, 8 13, 7.5 11.6 C 5 11, 3 9, 3 5 L 6 5 Z" />
+            </svg>
+          </span>
+          <span className="button-step__name">Cerrada</span>
+        </motion.button>
+      )}
     </footer>
   );
 }
@@ -911,6 +1060,25 @@ function CityMap() {
 function SpainMap({ sold }: { sold: boolean }) {
   const lineColor = sold ? '#10b981' : '#fa5659';
 
+  // Coordenadas ajustadas a la imagen real spain-map.png
+  // Madrid en el centro geográfico (no desplazado a la izquierda)
+  const PINS = {
+    madrid: { top: '52%', left: '50%' },
+    barcelona: { top: '34%', left: '75%' },
+    valencia: { top: '57%', left: '68%' },
+    sevilla: { top: '76%', left: '32%' },
+    bilbao: { top: '25%', left: '54%' },
+    malaga: { top: '83%', left: '42%' },
+    zaragoza: { top: '38%', left: '63%' },
+    murcia: { top: '69%', left: '63%' },
+  };
+
+  // Conversión a coords viewBox 1000x700 para la línea (50% width = 500, 52% height = 364)
+  const madridX = 500;
+  const madridY = 364;
+  const barcelonaX = 750;
+  const barcelonaY = 238;
+
   return (
     <div className="map-spain">
       <svg
@@ -920,10 +1088,10 @@ function SpainMap({ sold }: { sold: boolean }) {
         style={{ pointerEvents: 'none' }}
       >
         <motion.line
-          x1="412"
-          y1="326"
-          x2="763"
-          y2="225"
+          x1={madridX}
+          y1={madridY}
+          x2={barcelonaX}
+          y2={barcelonaY}
           stroke={lineColor}
           strokeWidth="2"
           strokeDasharray="4 3"
@@ -935,15 +1103,14 @@ function SpainMap({ sold }: { sold: boolean }) {
       </svg>
 
       <div className="map-spain__overlay">
-        {/* 7 agentes verdes RIC */}
+        {/* 6 agentes verdes RIC (Madrid se renderiza aparte como pin destacado) */}
         {[
-          { top: '46.9%', left: '41.2%', city: 'Madrid' },
-          { top: '53.4%', left: '78.3%', city: 'Valencia' },
-          { top: '70.3%', left: '34.1%', city: 'Sevilla' },
-          { top: '22.1%', left: '51.2%', city: 'Bilbao' },
-          { top: '78.1%', left: '41.2%', city: 'Málaga' },
-          { top: '37.8%', left: '61.2%', city: 'Zaragoza' },
-          { top: '66.4%', left: '68.3%', city: 'Murcia' },
+          { ...PINS.valencia, city: 'Valencia' },
+          { ...PINS.sevilla, city: 'Sevilla' },
+          { ...PINS.bilbao, city: 'Bilbao' },
+          { ...PINS.malaga, city: 'Málaga' },
+          { ...PINS.zaragoza, city: 'Zaragoza' },
+          { ...PINS.murcia, city: 'Murcia' },
         ].map((agent) => (
           <span key={agent.city} className="ric-pin" style={{ top: agent.top, left: agent.left }}>
             <span className="ric-pin__city">{agent.city}</span>
@@ -954,8 +1121,8 @@ function SpainMap({ sold }: { sold: boolean }) {
         <span
           className="ric-pin"
           style={{
-            top: '33.9%',
-            left: '76.3%',
+            top: PINS.barcelona.top,
+            left: PINS.barcelona.left,
             ...(sold
               ? { background: 'var(--green)', boxShadow: '0 0 0 2px rgba(16,185,129,.15),0 0 14px var(--green-glow)' }
               : { background: 'var(--red)', boxShadow: '0 0 0 2px rgba(250,86,89,.15),0 0 14px var(--red-glow)' }),
@@ -969,8 +1136,8 @@ function SpainMap({ sold }: { sold: boolean }) {
           </span>
         </span>
 
-        {/* Tu pin Madrid */}
-        <div className="map-pin" style={{ top: '46.9%', left: '41.2%' }}>
+        {/* Tu pin Madrid - centro de España */}
+        <div className="map-pin" style={{ top: PINS.madrid.top, left: PINS.madrid.left }}>
           <span className={`map-pin__cap ${sold ? 'map-pin__cap--green' : 'map-pin__cap--red'}`}>
             <svg className="map-pin__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               {sold ? (

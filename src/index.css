@@ -18,12 +18,20 @@ html, body, #root {
   justify-content: center;
 }
 
-/* Override del simulator-screen para el modo interactivo */
+/* Wrapper externo: ocupa el tamaño escalado real para centrar correctamente */
+.app-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+/* Stage interno 1920x1080 fijo, transformado con origin top-left */
 .app-stage {
   width: 1920px;
   height: 1080px;
-  transform-origin: center center;
-  position: relative;
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: top left;
 }
 
 .app-stage .simulator-screen {
