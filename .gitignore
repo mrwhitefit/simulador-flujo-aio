@@ -5,3 +5,6 @@ dist
 *.log
 .env
 .env.local
+v2-bundle.zip
+claude-design-v1/
+claude-design-v2/

@@ -1,21 +1,42 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import './v2.css';
 
-* {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-html,
-body,
-#root {
-  height: 100%;
+/* React app scaling — el simulador es 1920x1080 fijo, lo escalamos al viewport */
+html, body, #root {
   margin: 0;
+  padding: 0;
+  background: #050505;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
+  font-family: 'Montserrat', system-ui, sans-serif;
+  color: #fff;
 }
 
-body {
-  font-family: 'Montserrat', system-ui, sans-serif;
-  background: #1a1a1a;
+#root {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Override del simulator-screen para el modo interactivo */
+.app-stage {
+  width: 1920px;
+  height: 1080px;
+  transform-origin: center center;
+  position: relative;
+}
+
+.app-stage .simulator-screen {
+  width: 1920px;
+  height: 1080px;
+  margin: 0;
+}
+
+/* Anular state-divider en modo interactivo */
+.state-divider { display: none !important; }
+
+/* Asegurar que las animaciones de Framer Motion no rompen el layout */
+.app-stage > * {
+  position: absolute;
+  inset: 0;
 }
