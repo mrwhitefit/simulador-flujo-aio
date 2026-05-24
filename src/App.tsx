@@ -476,21 +476,7 @@ function PhoneContent({ step }: { step: Step }) {
   if (step === 4) {
     return <CallScreen />;
   }
-  if (step === 5) {
-    return <div className="rest-screen" />;
-  }
-  if (step === 6) {
-    return (
-      <div className="rest-screen">
-        <div className="rest-screen__check">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4">
-            <path d="M5 12 L 10 17 L 19 7" />
-          </svg>
-        </div>
-      </div>
-    );
-  }
-  // steps 1, 2, 3 — Instagram feed (con anuncio en 2-3, notificaciones en 3)
+  // steps 1, 2, 3, 5, 6 — Instagram feed con sus notificaciones
   return <InstagramFeed step={step} />;
 }
 
@@ -671,10 +657,11 @@ function InstagramFeed({ step }: { step: Step }) {
         )}
       </AnimatePresence>
 
+      {/* Notificaciones paso 3 — leads pidiendo valoración */}
       <AnimatePresence>
         {showNotifs && (
           <motion.div
-            key="notifs"
+            key="notifs-3"
             className="notif-stack"
             initial={{ opacity: 0, y: -30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -698,7 +685,73 @@ function InstagramFeed({ step }: { step: Step }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Notificaciones paso 5 — leads RIC desde otras ciudades */}
+      <AnimatePresence>
+        {step === 5 && <RicNotifications variant="ric" />}
+      </AnimatePresence>
+
+      {/* Notificaciones paso 6 — pago recibido + más leads */}
+      <AnimatePresence>
+        {step === 6 && <RicNotifications variant="sold" />}
+      </AnimatePresence>
     </div>
+  );
+}
+
+// Notificaciones RIC para pasos 5 y 6
+function RicNotifications({ variant }: { variant: 'ric' | 'sold' }) {
+  const ricNotifs = [
+    { name: 'Lucía López', time: 'ahora', preview: 'Tengo una propiedad en Alicante. ¿Colaboramos?', kind: 'ric' as const },
+    { name: 'Daniel Romero', time: '1 min', preview: 'Vendo casa en Málaga, busco compañero RIC', kind: 'ric' as const },
+    { name: 'Marta Pérez', time: '3 min', preview: 'Nueva exclusiva en Barcelona disponible', kind: 'ric' as const },
+    { name: 'Carlos Vega', time: '5 min', preview: 'Propiedad en Murcia esperando comprador', kind: 'ric' as const },
+    { name: 'Ana Martín', time: '8 min', preview: 'Cliente busca piso en Valencia, ¿tienes?', kind: 'ric' as const },
+  ];
+
+  const soldNotifs = [
+    { name: 'RIC · Pago recibido', time: 'ahora', preview: 'Comisión ingresada: 6.000 € · Cuenta AIO ****1234', kind: 'pago' as const },
+    { name: 'Juan Mendoza', time: '1 min', preview: '¡Cerrado el de Madrid! Gracias por la colaboración 🎉', kind: 'ric' as const },
+    { name: 'Lucía López', time: '4 min', preview: 'Tengo otra propiedad en Alicante. ¿Te interesa?', kind: 'ric' as const },
+    { name: 'Daniel Romero', time: '6 min', preview: 'Vendo casa en Málaga, busco compañero RIC', kind: 'ric' as const },
+    { name: 'Marta Pérez', time: '10 min', preview: 'Nueva exclusiva en Barcelona disponible', kind: 'ric' as const },
+  ];
+
+  const list = variant === 'sold' ? soldNotifs : ricNotifs;
+
+  return (
+    <motion.div
+      className="notif-stack notif-stack--ric"
+      initial={{ opacity: 0, y: -30 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -30 }}
+      transition={{ delay: 0.4 }}
+      style={{
+        position: 'absolute',
+        top: 8,
+        left: 8,
+        right: 8,
+        zIndex: 30,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 5,
+      }}
+    >
+      {list.map((n, i) => (
+        <NotificationBanner
+          key={i}
+          name={n.name}
+          time={n.time}
+          preview={n.preview}
+          peek={i >= 2}
+          delay={i * 0.18}
+          kind={n.kind}
+        />
+      ))}
+      <span className="notif-badge" style={{ background: variant === 'sold' ? '#10b981' : '#fa5659' }}>
+        {list.length}
+      </span>
+    </motion.div>
   );
 }
 
@@ -708,13 +761,18 @@ function NotificationBanner({
   preview,
   peek,
   delay = 0,
+  kind = 'whatsapp',
 }: {
   name: string;
   time: string;
   preview: string;
   peek?: boolean;
   delay?: number;
+  kind?: 'whatsapp' | 'ric' | 'pago';
 }) {
+  const iconBg =
+    kind === 'pago' ? '#10b981' : kind === 'ric' ? '#fa5659' : '#25D366';
+
   return (
     <motion.div
       className={`notification-banner ${peek ? 'notification-banner--peek' : ''}`}
@@ -722,10 +780,21 @@ function NotificationBanner({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: delay + 0.2 }}
     >
-      <div className="notification-banner__avatar">
-        <svg viewBox="0 0 24 24" fill="#fff">
-          <path d="M12 2 C 6.5 2, 2 6.5, 2 12 C 2 13.7, 2.5 15.3, 3.3 16.7 L 2 22 L 7.5 20.7 C 8.8 21.5, 10.4 22, 12 22 C 17.5 22, 22 17.5, 22 12 C 22 6.5, 17.5 2, 12 2 Z" />
-        </svg>
+      <div className="notification-banner__avatar" style={{ background: iconBg }}>
+        {kind === 'pago' ? (
+          <svg viewBox="0 0 24 24" fill="#fff" width="14" height="14">
+            <path d="M12 2 L 14.5 8.5 L 21 9.3 L 16 14 L 17.5 21 L 12 17.5 L 6.5 21 L 8 14 L 3 9.3 L 9.5 8.5 Z" />
+          </svg>
+        ) : kind === 'ric' ? (
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" width="14" height="14">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M7 12 L 11 16 L 17 8" />
+          </svg>
+        ) : (
+          <svg viewBox="0 0 24 24" fill="#fff">
+            <path d="M12 2 C 6.5 2, 2 6.5, 2 12 C 2 13.7, 2.5 15.3, 3.3 16.7 L 2 22 L 7.5 20.7 C 8.8 21.5, 10.4 22, 12 22 C 17.5 22, 22 17.5, 22 12 C 22 6.5, 17.5 2, 12 2 Z" />
+          </svg>
+        )}
       </div>
       <div className="notification-banner__body">
         <div className="notification-banner__row">
