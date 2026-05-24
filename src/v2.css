@@ -1893,7 +1893,7 @@ html, body {
 
 /* Map Spain — image background, remove drawn silhouette */
 .map-spain {
-  background-image: url('//spain-map.png');
+  background-image: url('/spain-map.png');
   background-size: cover;
   background-position: center;
 }
@@ -1902,7 +1902,7 @@ html, body {
 
 /* Map City (state 4) — isometric Madrid 3D render as background */
 .map-city {
-  background-image: url('//madrid-city.png');
+  background-image: url('/madrid-city.png');
   background-size: cover;
   background-position: center;
 }
@@ -1935,7 +1935,7 @@ html, body {
 
 /* Funnel shape — use the glass funnel render instead of the drawn SVG */
 .funnel-shape {
-  background-image: url('//funnel-glass.png');
+  background-image: url('/funnel-glass.png');
   background-repeat: no-repeat;
   background-position: center;
   background-size: contain;
