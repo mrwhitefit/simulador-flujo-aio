@@ -77,17 +77,6 @@ export default function App() {
             >
               <IntroScreen onStart={() => setStep(0)} />
             </motion.div>
-          ) : step === 7 ? (
-            <motion.div
-              key="final"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.4 }}
-              style={{ position: 'absolute', inset: 0 }}
-            >
-              <FinalScreen onStep={setStep} />
-            </motion.div>
           ) : (
             <motion.div
               key="sim"
@@ -97,8 +86,15 @@ export default function App() {
               transition={{ duration: 0.3 }}
               style={{ position: 'absolute', inset: 0 }}
             >
-              <SimulatorScreen step={step} onStep={setStep} />
+              <SimulatorScreen step={step === 7 ? 6 : step} onStep={setStep} />
             </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Modal final superpuesto al paso 6 */}
+        <AnimatePresence>
+          {step === 7 && (
+            <FinalModal onClose={() => setStep(6)} />
           )}
         </AnimatePresence>
       </div>
@@ -205,123 +201,150 @@ function SimulatorScreen({ step, onStep }: { step: Step; onStep: (s: Step) => vo
 
       <ButtonBar step={step} onStep={onStep} />
 
+      {/* Botón CTA "Ver la colaboración" en paso 6 (sólo si NO está abierto el final) */}
+      <AnimatePresence>
+        {step === 6 && (
+          <motion.button
+            key="cta-final"
+            className="cta-final-btn"
+            onClick={() => onStep(7)}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+            transition={{ delay: 1.4, duration: 0.4 }}
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" style={{ color: '#fff' }}>
+              <path d="M6 3 L18 3 L18 5 L21 5 C 21 9, 19 11, 16.5 11.6 C 16 13, 15 14, 13.5 14.5 L 13.5 17 L 16 17 L 16 19 L 8 19 L 8 17 L 10.5 17 L 10.5 14.5 C 9 14, 8 13, 7.5 11.6 C 5 11, 3 9, 3 5 L 6 5 Z" />
+            </svg>
+            Ver la colaboración
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" width="14" height="14">
+              <path d="M3 8 L13 8 M9 4 L13 8 L9 12" />
+            </svg>
+          </motion.button>
+        )}
+      </AnimatePresence>
+
       <AnimatePresence>{step === 6 && <Confetti />}</AnimatePresence>
     </section>
   );
 }
 
 // ============================================================================
-// FINAL SCREEN · Operación cerrada con desglose
+// FINAL MODAL · Overlay con card "Operación cerrada"
 // ============================================================================
-function FinalScreen({ onStep }: { onStep: (s: Step) => void }) {
+function FinalModal({ onClose }: { onClose: () => void }) {
+  // Click fuera del card cierra el modal
+  // ESC también cierra (manejo aparte por keyboard ya hace -1 → reset)
   return (
-    <section className="simulator-screen">
-      <header className="app-header">
-        <div className="app-header__left">
-          <span className="app-header__logo">AIO</span>
-          <span className="app-header__divider" />
-          <span className="app-header__title">
-            <strong>El flujo</strong> · cómo se vende un inmueble online
-          </span>
-        </div>
-        <div className="app-header__right">
-          <button className="app-header__reset" onClick={() => onStep(-1)}>
-            Reset
-          </button>
-          <span className="app-header__step">
-            Operación <b>cerrada</b>
-          </span>
-        </div>
-      </header>
+    <motion.div
+      key="final-modal"
+      className="final-modal"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.35 }}
+      onClick={onClose}
+    >
+      {/* Watermark RIC detrás */}
+      <div className="final-watermark">
+        <span className="final-watermark__letter">R</span>
+        <span className="final-watermark__letter">C</span>
+      </div>
 
-      <main className="app-main app-main--final">
-        {/* Watermark RIC */}
-        <div className="final-watermark">
-          <span className="final-watermark__letter">R</span>
-          <span className="final-watermark__letter">C</span>
-        </div>
+      <Confetti />
 
-        {/* Confetti background */}
-        <Confetti />
+      {/* Botón cerrar */}
+      <button
+        className="final-modal__close"
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
+        aria-label="Cerrar"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M6 6 L18 18 M18 6 L6 18" />
+        </svg>
+      </button>
 
-        {/* Card */}
-        <motion.div
-          className="final-card"
-          initial={{ opacity: 0, y: 30, scale: 0.95 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-        >
-          <div className="final-card__head">
-            <motion.span
-              className="final-card__trophy"
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ delay: 0.3, type: 'spring', stiffness: 180, damping: 14 }}
-            >
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M6 3 L18 3 L18 5 L21 5 C 21 9, 19 11, 16.5 11.6 C 16 13, 15 14, 13.5 14.5 L 13.5 17 L 16 17 L 16 19 L 8 19 L 8 17 L 10.5 17 L 10.5 14.5 C 9 14, 8 13, 7.5 11.6 C 5 11, 3 9, 3 5 L 6 5 Z M 5 7 C 5.3 8.5, 6 9.5, 7 10 L 7 7 Z M 19 7 L 17 7 L 17 10 C 18 9.5, 18.7 8.5, 19 7 Z M 7 20 L 17 20 L 17 21 L 7 21 Z" />
-              </svg>
-            </motion.span>
-            <div className="final-card__title">Operación cerrada</div>
-          </div>
-
-          <div className="final-card__hero">
-            <img src="/anuncio-inmueble.png" alt="" />
-          </div>
-          <div className="final-card__address">Madrid · Tu zona</div>
-
-          <div className="final-card__price">300.000 €</div>
-          <div className="final-card__price-label">Precio de venta</div>
-
-          <div className="final-card__divider" />
-
-          <div className="final-card__fees-label">Honorarios totales</div>
-          <motion.div
-            className="final-card__fees"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.5 }}
+      <motion.div
+        className="final-card"
+        initial={{ opacity: 0, y: 40, scale: 0.92 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 20, scale: 0.96 }}
+        transition={{ duration: 0.55, ease: 'easeOut' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="final-card__head">
+          <motion.span
+            className="final-card__trophy"
+            initial={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ delay: 0.3, type: 'spring', stiffness: 180, damping: 14 }}
           >
-            12.000 €
-          </motion.div>
-          <div className="final-card__split-hint">
-            (4%) — <b>50% Tú</b> / <b>50% Compañero RIC</b>
-          </div>
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M6 3 L18 3 L18 5 L21 5 C 21 9, 19 11, 16.5 11.6 C 16 13, 15 14, 13.5 14.5 L 13.5 17 L 16 17 L 16 19 L 8 19 L 8 17 L 10.5 17 L 10.5 14.5 C 9 14, 8 13, 7.5 11.6 C 5 11, 3 9, 3 5 L 6 5 Z M 5 7 C 5.3 8.5, 6 9.5, 7 10 L 7 7 Z M 19 7 L 17 7 L 17 10 C 18 9.5, 18.7 8.5, 19 7 Z M 7 20 L 17 20 L 17 21 L 7 21 Z" />
+            </svg>
+          </motion.span>
+          <div className="final-card__title">Operación cerrada</div>
+        </div>
 
-          <div className="final-card__split">
-            <motion.div
-              className="final-share"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.9 }}
-            >
-              <div className="final-share__avatar">
-                <img src="/feed-yo-1.png" alt="Tú" />
-              </div>
-              <span className="final-share__name">Tú</span>
-              <span className="final-share__amount">6.000 €</span>
-              <span className="final-share__role">Madrid</span>
-            </motion.div>
-            <div className="final-split__op">+</div>
-            <motion.div
-              className="final-share"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.9 }}
-            >
-              <div className="final-share__avatar final-share__avatar--placeholder">
-                <span>JM</span>
-              </div>
-              <span className="final-share__name">Compañero RIC</span>
-              <span className="final-share__amount">6.000 €</span>
-              <span className="final-share__role">Barcelona</span>
-            </motion.div>
-          </div>
+        <div className="final-card__hero">
+          <img src="/anuncio-inmueble.png" alt="" />
+        </div>
+        <div className="final-card__address">Madrid · Tu zona</div>
+
+        <div className="final-card__price">300.000 €</div>
+        <div className="final-card__price-label">Precio de venta</div>
+
+        <div className="final-card__divider" />
+
+        <div className="final-card__fees-label">Honorarios totales</div>
+        <motion.div
+          className="final-card__fees"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ delay: 0.6, duration: 0.5 }}
+        >
+          12.000 €
         </motion.div>
-      </main>
+        <div className="final-card__split-hint">
+          (4%) — <b>50% Tú</b> / <b>50% Compañero RIC</b>
+        </div>
 
-      <ButtonBar step={7} onStep={onStep} />
-    </section>
+        <div className="final-card__split">
+          <motion.div
+            className="final-share"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.9 }}
+          >
+            <div className="final-share__avatar">
+              <img src="/feed-yo-1.png" alt="Tú" />
+            </div>
+            <span className="final-share__name">Tú</span>
+            <span className="final-share__amount">6.000 €</span>
+            <span className="final-share__role">Madrid</span>
+          </motion.div>
+          <div className="final-split__op">+</div>
+          <motion.div
+            className="final-share"
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.9 }}
+          >
+            <div className="final-share__avatar final-share__avatar--placeholder">
+              <span>JM</span>
+            </div>
+            <span className="final-share__name">Compañero RIC</span>
+            <span className="final-share__amount">6.000 €</span>
+            <span className="final-share__role">Barcelona</span>
+          </motion.div>
+        </div>
+      </motion.div>
+    </motion.div>
   );
 }
 
@@ -355,15 +378,16 @@ function Header({ stepLabel, onReset }: { stepLabel: string; onReset?: () => voi
 // BUTTON BAR
 // ============================================================================
 function ButtonBar({ step, onStep }: { step: Step; onStep: (s: Step) => void }) {
-  const showTrophy = step >= 6;
+  // En step 7 (final), el paso "Venta" sigue como activo (porque el final es parte de venta)
+  const visualStep = step === 7 ? 6 : step;
 
   return (
     <footer className="button-bar">
       {([0, 1, 2, 3, 4, 5, 6] as const).map((n) => {
         let cls = 'button-step';
-        if (step === n) cls += ' button-step--active';
-        else if (n < step) cls += ' button-step--done';
-        else if (n === step + 1) cls += ' button-step--next';
+        if (visualStep === n) cls += ' button-step--active';
+        else if (n < visualStep) cls += ' button-step--done';
+        else if (n === visualStep + 1) cls += ' button-step--next';
         return (
           <button key={n} className={cls} onClick={() => onStep(n)}>
             <span className="button-step__num">{n}</span>
@@ -371,22 +395,6 @@ function ButtonBar({ step, onStep }: { step: Step; onStep: (s: Step) => void }) 
           </button>
         );
       })}
-      {showTrophy && (
-        <motion.button
-          className={`button-step button-step--trophy ${step === 7 ? 'button-step--active' : 'button-step--next'}`}
-          onClick={() => onStep(7)}
-          initial={{ opacity: 0, scale: 0.7 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ type: 'spring', stiffness: 200, damping: 16 }}
-        >
-          <span className="button-step__num" style={{ background: 'rgba(251,191,36,0.2)' }}>
-            <svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11">
-              <path d="M6 3 L18 3 L18 5 L21 5 C 21 9, 19 11, 16.5 11.6 C 16 13, 15 14, 13.5 14.5 L 13.5 17 L 16 17 L 16 19 L 8 19 L 8 17 L 10.5 17 L 10.5 14.5 C 9 14, 8 13, 7.5 11.6 C 5 11, 3 9, 3 5 L 6 5 Z" />
-            </svg>
-          </span>
-          <span className="button-step__name">Cerrada</span>
-        </motion.button>
-      )}
     </footer>
   );
 }
