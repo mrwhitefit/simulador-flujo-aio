@@ -16,6 +16,16 @@ El cálculo final es: inmueble 300.000€ × 4% honorarios = 12.000€ comisión
 
 ---
 
+## ASSETS QUE TE PASO COMO REFERENCIA
+
+Junto a este prompt te voy a adjuntar **una captura de pantalla de un perfil de Instagram real** que quiero que uses como referencia visual para la marca dentro del móvil del simulador.
+
+Adapta esa captura al diseño general del simulador (tipografía Montserrat, paleta oscura AIO, márgenes, sombras), pero respeta la sensación visual del feed: estructura del grid 3x3, jerarquía visual del header de perfil, estética de los posts.
+
+NO copies píxel a píxel la captura. Toma su estilo, su densidad de información y su sensación premium, y aplícalo a la marca ficticia "tu.zona.aio" en el contexto del simulador.
+
+---
+
 ## QUÉ NECESITO QUE ENTREGUES
 
 Un **HTML único** con los **7 estados completos** del simulador apilados verticalmente, cada uno como una "vista" completa de la pantalla 1920x1080. Yo después porto el código a React y le añado las animaciones con Framer Motion.
@@ -270,13 +280,35 @@ Los iconos deben ser **monocromos blancos** o blancos/70%, NO emojis multicolor.
 
 **Móvil**: pantalla "en reposo" del móvil — fondo `#1a1a1a` casi vacío, quizás con un pequeño icono outline central muy sutil que indique "negocio activo" o simplemente la status bar arriba con la hora.
 
-**Mapa**: **CAMBIO TOTAL DE VISTA**. Ya no es la ciudad. Ahora es un **mapa simplificado de España** (silueta del país en blanco/4% relleno, blanco/15% borde):
+**Mapa**: **CAMBIO TOTAL DE VISTA**. Ya no es la ciudad. Ahora es un **mapa estilizado premium de España**.
+
+Inspiración visual: estilo "dark map premium" tipo Mapbox dark theme o estilo de mapas de dashboards Apple/Linear. Limpio, sobrio, con peso visual. NO un SVG plano y feo. NO un mapa real con calles y carreteras (queremos algo más estilizado y abstracto). NO un mapa de Google Maps tradicional.
+
+Especificaciones del mapa:
+- **Silueta de España bien proporcionada** (península + Baleares + opcionalmente Canarias). Forma reconocible, no genérica.
+- Relleno: gradiente sutil de `rgba(255,255,255,0.04)` arriba a `rgba(255,255,255,0.02)` abajo
+- Borde de la silueta: 1px `rgba(255,255,255,0.18)` con un ligerísimo glow blanco interior para que se sienta "iluminada"
+- Opcional: líneas sutiles de "latitud/longitud" muy tenues (white/3%) por detrás como fondo, tipo retícula de dashboard premium
+- Opcional: pequeño efecto de profundidad — sombra interna oscura suave para dar sensación de relieve
+- **Sin nombres de regiones, sin carreteras, sin etiquetas geográficas innecesarias.** Solo silueta + puntos de agentes + tu pin
+- Fondo del panel detrás del mapa: el mismo gradiente oscuro que el resto de paneles
+
+Puntos sobre el mapa:
 - 8 puntos verdes esmeralda `#10b981` distribuidos por las ciudades principales: Madrid, Barcelona, Valencia, Sevilla, Bilbao, Málaga, Zaragoza, Murcia
-- Cada uno con un pequeño glow verde sutil
+- Cada uno con un pequeño glow verde sutil (box-shadow `0 0 10px rgba(16,185,129,0.5)`)
+- Punto del tamaño 8-10px de diámetro
 - **Tu pin de exclusiva** queda en Alicante (costa este, coordenadas aprox. x:65%, y:62%)
 - Murcia (cercana a Alicante) tiene un punto rojo más destacado en lugar de verde, con etiqueta "MURCIA" en cápsula roja bold
-- **Una línea trazada roja punteada** conecta tu pin (Alicante) con el punto rojo de Murcia — esta línea es el "match" RIC
-- Leyenda abajo izquierda con dos dots: "Agentes RIC" (verde) y "Conexión" (rojo)
+- **Una línea trazada roja punteada** conecta tu pin (Alicante) con el punto rojo de Murcia — esta línea es el "match" RIC, en `#fa5659` 2px con stroke-dasharray
+- Leyenda abajo izquierda con dos dots minúsculos: "Agentes RIC" (verde) y "Conexión" (rojo) — texto en blanco/40%, 9px
+
+Estilo de referencia para inspirarte:
+- El "dark map" de Stripe Atlas
+- Los mapas estilizados de las landings de Linear, Vercel o Notion
+- Los mapas premium de fintech tipo Wise o Revolut en sus reports
+- El mapa de la RIC (Red Inmobiliaria Colaborativa) de AIO: simple, oscuro, con puntos brillantes, sin saturar de información
+
+Premium pero simple. La silueta de España debe ser elegante. Si parece un "mapa de PowerPoint del 2010", es un fallo.
 
 **Métricas**: igual al estado 4 (con exclusivas: 1, cobrado: 0).
 
